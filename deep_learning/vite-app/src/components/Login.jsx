@@ -1,4 +1,3 @@
-// Login.jsx
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +17,14 @@ const Login = () => {
 
     try {
       const response = await axios.post("http://localhost:5000/api/login", form);
-      const { role } = response.data;
+      const { role, username, userId } = response.data;
+      
+      // Store user data in localStorage
+      localStorage.setItem("user", JSON.stringify({
+        role,
+        username,
+        userId
+      }));
 
       if (role === "student") {
         navigate("/student");
@@ -36,9 +42,25 @@ const Login = () => {
     <div style={{ textAlign: "center", marginTop: "100px" }}>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <input type="email" name="email" placeholder="Email" value={form.email} onChange={handleChange} required /><br /><br />
-        <input type="password" name="password" placeholder="Password" value={form.password} onChange={handleChange} required /><br /><br />
-        <button type="submit">Login</button>
+        <input 
+          type="email" 
+          name="email" 
+          placeholder="Email" 
+          value={form.email} 
+          onChange={handleChange} 
+          required 
+          style={{ padding: "8px", width: "300px" }}
+        /><br /><br />
+        <input 
+          type="password" 
+          name="password" 
+          placeholder="Password" 
+          value={form.password} 
+          onChange={handleChange} 
+          required 
+          style={{ padding: "8px", width: "300px" }}
+        /><br /><br />
+        <button type="submit" style={{ padding: "10px 20px" }}>Login</button>
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
     </div>

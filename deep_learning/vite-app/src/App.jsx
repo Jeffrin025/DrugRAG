@@ -111,12 +111,64 @@
 //     );
 // }
 
+// export default App;
+
+
+
+// import React from "react";
+// import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+// import Login from "./components/Login";
+// import StudentDashboard from "./components/StudentDashboard";
+// import StaffDashboard from "./components/StaffDashboard";
+
+// function App() {
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<Login />} />
+//         <Route path="/student" element={<StudentDashboard />} />
+//         <Route path="/staff" element={<StaffDashboard />} />
+//         <Route path="*" element={<Navigate to="/" />} />
+//       </Routes>
+//     </Router>
+//   );
+// }
+
+// export default App;
+
+
+// import React from "react";
+// import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+// import Login from "./components/Login";
+// import StudentDashboard from "./components/StudentDashboard";
+// import StaffDashboard from "./components/StaffDashboard";
+
+// function App() {
+//   return (
+//     <Router>
+//       <Routes>
+//         <Route path="/" element={<Login />} />
+//         <Route path="/student" element={<StudentDashboard />} />
+//         <Route path="/staff" element={<StaffDashboard />} />
+//         <Route path="*" element={<Navigate to="/" />} />
+//       </Routes>
+//     </Router>
+//   );
+// }
+
+// export default App;
+
+
 
 import React from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Login from "./components/Login";
 import StudentDashboard from "./components/StudentDashboard";
 import StaffDashboard from "./components/StaffDashboard";
+import StaffAssignments from "./components/assignment";
+import StudentAssignments from "./components/StudentAssignment";
+import CreateAssignment from "./components/CreateAssignment";
+import AssignmentSubmissions from "./components/assignmentsubmission";
 
 function App() {
   return (
@@ -124,7 +176,11 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/student/assignments" element={<StudentAssignments />} />
         <Route path="/staff" element={<StaffDashboard />} />
+        <Route path="/staff/assignments" element={<StaffAssignments />} />
+        <Route path="/staff/assignments/create" element={<CreateAssignment />} />
+        <Route path="/staff/assignments/:id/submissions" element={<AssignmentSubmissions />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
