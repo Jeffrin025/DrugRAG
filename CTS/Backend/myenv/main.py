@@ -23,7 +23,7 @@ def main():
     
     # Example queries
     queries = [
-        "How did the number of swollen joints change in Simponi Aria patients by Week 14 compared to baseline?"
+        "Which adverse reaction showed the largest increase in incidence compared with placebo?"
     ]
     
     for query in queries:
