@@ -1,195 +1,15 @@
-# import os
-# import re
-# import PyPDF2
-# from typing import List, Dict, Any
-# import uuid
-
-# class PDFProcessor:
-#     """PDF processor that handles text extraction, section identification, and chunking"""
-    
-#     def __init__(self):
-#         # FDA sections for better organization
-#         self.fda_sections = [
-#             "BOXED WARNING", "INDICATIONS AND USAGE", "DOSAGE AND ADMINISTRATION",
-#             "CONTRAINDICATIONS", "WARNINGS AND PRECAUTIONS", "ADVERSE REACTIONS",
-#             "DRUG INTERACTIONS", "USE IN SPECIFIC POPULATIONS", "PATIENT COUNSELING INFORMATION",
-#             "CLINICAL PHARMACOLOGY", "HOW SUPPLIED/STORAGE AND HANDLING", "MEDICATION GUIDE",
-#             "DESCRIPTION", "CLINICAL STUDIES", "MECHANISM OF ACTION", "PHARMACOKINETICS",
-#             "NONCLINICAL TOXICOLOGY", "CLINICAL TRIALS"
-#         ]
-        
-#         self.fda_section_pattern = re.compile(
-#             r'^\s*(' + '|'.join(re.escape(section) for section in self.fda_sections) + r')\s*$',
-#             re.IGNORECASE | re.MULTILINE
-#         )
-    
-#     def extract_text_from_pdf(self, pdf_path: str) -> str:
-#         """Extract text from a PDF file with robust error handling"""
-#         text = ""
-#         try:
-#             with open(pdf_path, 'rb') as file:
-#                 pdf_reader = PyPDF2.PdfReader(file)
-#                 for page_num, page in enumerate(pdf_reader.pages):
-#                     try:
-#                         page_text = page.extract_text()
-#                         if page_text and page_text.strip():
-#                             text += f"--- Page {page_num + 1} ---\n{page_text}\n\n"
-#                         else:
-#                             text += f"--- Page {page_num + 1} ---\n[Content not extractable - may contain images/scanned content]\n\n"
-#                     except Exception as page_error:
-#                         text += f"--- Page {page_num + 1} ---\n[Error extracting page content: {str(page_error)}]\n\n"
-#         except Exception as e:
-#             print(f"Error reading PDF {pdf_path}: {e}")
-#             return f"Error extracting text from {pdf_path}: {str(e)}"
-#         return text
-    
-#     def is_fda_format(self, text: str) -> bool:
-#         """Check if the document follows FDA format"""
-#         fda_section_count = sum(1 for section in self.fda_sections if section.upper() in text.upper())
-#         return fda_section_count >= 3
-    
-#     def extract_sections(self, text: str) -> List[Dict[str, Any]]:
-#         """Extract sections from document, preserving all content with robust parsing"""
-#         sections = []
-#         current_section = "INTRODUCTION"
-#         content = ""
-#         page_num = 1
-#         is_fda = self.is_fda_format(text)
-        
-#         lines = text.split('\n')
-#         for line in lines:
-#             # Handle page breaks
-#             if line.startswith("--- Page "):
-#                 if content.strip():
-#                     sections.append({
-#                         "section": current_section,
-#                         "content": content.strip(),
-#                         "page_start": page_num,
-#                         "page_end": page_num,
-#                         "is_fda": is_fda
-#                     })
-#                 content = ""
-#                 match = re.match(r'--- Page (\d+) ---', line)
-#                 if match:
-#                     page_num = int(match.group(1))
-#                 continue
-            
-#             # Handle section headers based on document type
-#             section_match = None
-#             if is_fda:
-#                 section_match = self.fda_section_pattern.match(line.upper())
-#             else:
-#                 # Generic section detection for non-FDA documents
-#                 section_match = (re.match(r'^\s*([A-Z][A-Z\s\-]+(?:\.|:)?)\s*$', line) 
-#                                and len(line.strip()) < 100 
-#                                and not line.strip().isdigit())
-            
-#             if section_match:
-#                 if content.strip():
-#                     sections.append({
-#                         "section": current_section,
-#                         "content": content.strip(),
-#                         "page_start": page_num,
-#                         "page_end": page_num,
-#                         "is_fda": is_fda
-#                     })
-#                 current_section = line.strip().upper()
-#                 content = ""
-#             else:
-#                 content += line + "\n"
-        
-#         # Add the final section
-#         if content.strip():
-#             sections.append({
-#                 "section": current_section,
-#                 "content": content.strip(),
-#                 "page_start": page_num,
-#                 "page_end": page_num,
-#                 "is_fda": is_fda
-#             })
-        
-#         return sections
-    
-#     def chunk_content(self, content: str, chunk_size: int = 800, overlap: int = 100) -> List[Dict[str, Any]]:
-#         """Create semantic chunks with overlap for better context preservation"""
-#         chunks = []
-#         words = content.split()
-        
-#         # Handle very short content
-#         if len(words) <= chunk_size:
-#             return [{"content": content, "chunk_id": "chunk_0"}]
-        
-#         for i in range(0, len(words), chunk_size - overlap):
-#             chunk_words = words[i:i + chunk_size]
-#             chunk_text = " ".join(chunk_words)
-            
-#             # Ensure we don't create empty chunks
-#             if chunk_text.strip():
-#                 chunks.append({
-#                     "content": chunk_text,
-#                     "chunk_id": f"chunk_{i//chunk_size}"
-#                 })
-        
-#         return chunks
-    
-#     def prepare_documents_for_db(self, pdf_name: str, pdf_index: int, sections: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-#         """Prepare documents for database insertion with proper metadata"""
-#         documents_batch = []
-        
-#         for section in sections:
-#             for chunk in section.get("chunks", []):
-#                 doc_id = str(uuid.uuid4())
-#                 document = {
-#                     "id": doc_id,
-#                     "content": chunk["content"],
-#                     "metadata": {
-#                         "pdf_index": pdf_index,
-#                         "pdf_name": pdf_name,
-#                         "section": section["section"],
-#                         "page_start": section["page_start"],
-#                         "page_end": section["page_end"],
-#                         "is_fda": section.get("is_fda", False),
-#                         "content_type": self._classify_content_type(chunk["content"])
-#                     }
-#                 }
-#                 documents_batch.append(document)
-        
-#         return documents_batch
-    
-#     def _classify_content_type(self, content: str) -> str:
-#         """Classify content type for better retrieval"""
-#         content_lower = content.lower()
-        
-#         medical_keywords = {
-#             'dose', 'dosage', 'mg', 'kg', 'injection', 'infusion', 'treatment',
-#             'therapy', 'side effects', 'adverse', 'contraindications', 'warnings',
-#             'patient', 'clinical', 'studies', 'efficacy', 'safety', 'medical'
-#         }
-        
-#         table_keywords = {'table', 'figure', 'chart', 'graph', 'data', 'results'}
-        
-#         if any(keyword in content_lower for keyword in medical_keywords):
-#             return "medical"
-#         elif any(keyword in content_lower for keyword in table_keywords):
-#             return "tabular"
-#         elif len(content_lower.split()) < 50:  # Short content
-#             return "metadata"
-#         else:
-#             return "general"
-
-
 import os
 import re
-import PyPDF2
 import pdfplumber
+import camelot
 from typing import List, Dict, Any
 import uuid
 
 class PDFProcessor:
-    """PDF processor that handles text extraction, section identification, and chunking"""
-    
+    """Optimized PDF processor for text and table extraction, handling both bordered & borderless tables, avoiding false positives."""
+
     def __init__(self):
-        # FDA sections for better organization
+        # FDA sections
         self.fda_sections = [
             "BOXED WARNING", "INDICATIONS AND USAGE", "DOSAGE AND ADMINISTRATION",
             "CONTRAINDICATIONS", "WARNINGS AND PRECAUTIONS", "ADVERSE REACTIONS",
@@ -198,138 +18,138 @@ class PDFProcessor:
             "DESCRIPTION", "CLINICAL STUDIES", "MECHANISM OF ACTION", "PHARMACOKINETICS",
             "NONCLINICAL TOXICOLOGY", "CLINICAL TRIALS"
         ]
-        
         self.fda_section_pattern = re.compile(
             r'^\s*(' + '|'.join(re.escape(section) for section in self.fda_sections) + r')\s*$',
             re.IGNORECASE | re.MULTILINE
         )
-    
-    def extract_text_from_pdf(self, pdf_path: str) -> str:
-        """Extract text from a PDF file with robust error handling including tables"""
-        text = ""
-        try:
-            # First try with pdfplumber for better table handling
-            text = self._extract_with_pdfplumber(pdf_path)
-            
-            # Fallback to PyPDF2 if pdfplumber fails
-            if not text.strip() or len(text.strip()) < 100:
-                text = self._extract_with_pypdf2(pdf_path)
-                
-        except Exception as e:
-            print(f"Error reading PDF {pdf_path}: {e}")
-            text = f"Error extracting text from {pdf_path}: {str(e)}"
-        
-        return text
-    
-    def _extract_with_pdfplumber(self, pdf_path: str) -> str:
-        """Extract text using pdfplumber (better for tables)"""
-        text = ""
-        try:
-            with pdfplumber.open(pdf_path) as pdf:
-                for page_num, page in enumerate(pdf.pages):
-                    # Extract regular text
-                    page_text = page.extract_text()
-                    
-                    # Extract tables and convert to readable text
-                    tables_text = self._extract_tables_from_page(page, page_num)
-                    
-                    if page_text or tables_text:
-                        text += f"--- Page {page_num + 1} ---\n"
-                        if page_text:
-                            text += f"{page_text}\n"
-                        if tables_text:
-                            text += f"\nTABLES:\n{tables_text}\n"
-                        text += "\n"
-                    else:
-                        text += f"--- Page {page_num + 1} ---\n[Content not extractable - may contain images/scanned content]\n\n"
-                        
-        except Exception as e:
-            print(f"pdfplumber extraction failed: {e}")
-            # Fallback to PyPDF2 will be attempted
-        
-        return text
-    
-    def _extract_tables_from_page(self, page, page_num: int) -> str:
-        """Extract tables from a page and convert to readable text"""
-        tables_text = ""
-        try:
-            tables = page.extract_tables()
-            
-            if tables:
-                for table_num, table in enumerate(tables):
-                    if table and any(any(cell for cell in row) for row in table):
-                        formatted_table = self._format_table_as_text(table)
-                        
-                        # Print table found and formatted table
-                        print(f"--- Table {table_num + 1} found on Page {page_num + 1} ---")
-                        print(formatted_table)
-                        
-                        tables_text += f"\nTable {table_num + 1}:\n{formatted_table}\n"
-                        
-        except Exception as e:
-            print(f"Table extraction failed on page {page_num}: {e}")
-            
-        return tables_text
 
-    
-    def _format_table_as_text(self, table: List[List[str]]) -> str:
-        """Convert table data to readable text format"""
-        if not table or not any(table):
-            return ""
-        
-        # Clean the table data
-        cleaned_table = []
-        for row in table:
-            cleaned_row = [str(cell).strip() if cell else "" for cell in row]
-            cleaned_table.append(cleaned_row)
-        
-        # Format as readable text
-        table_text = ""
-        for row in cleaned_table:
-            # Filter out empty rows
-            if any(cell for cell in row):
-                table_text += " | ".join(row) + "\n"
-            print("---  ----------- Row formatted ----------------------")
-            print(table_text)
-        
-        return table_text
-    
-    def _extract_with_pypdf2(self, pdf_path: str) -> str:
-        """Fallback extraction using PyPDF2"""
-        text = ""
-        try:
-            with open(pdf_path, 'rb') as file:
-                pdf_reader = PyPDF2.PdfReader(file)
-                for page_num, page in enumerate(pdf_reader.pages):
+    # ====================== Table Heuristic ======================
+    def _is_probably_table(self, rows: List[List[str]]) -> bool:
+        """
+        Heuristic check to avoid misclassifying paragraphs as tables.
+        """
+        if not rows or len(rows) < 2:
+            return False  # too small to be a table
+
+        # Count non-empty columns in each row
+        col_counts = [len([c for c in row if c.strip()]) for row in rows]
+        avg_cols = sum(col_counts) / len(col_counts)
+
+        # Rule 1: must have at least 2 average columns
+        if avg_cols < 2:
+            return False
+
+        # Rule 2: at least half rows should share similar column count
+        most_common = max(set(col_counts), key=col_counts.count)
+        if col_counts.count(most_common) < len(rows) / 2:
+            return False
+
+        return True
+
+    # ====================== PDF Extraction ======================
+    def extract_text_and_tables(self, pdf_path: str, start_page: int = 1) -> List[Dict[str, Any]]:
+        """
+        Extract text (two-column aware) and tables from PDF.
+        Handles both bordered (pdfplumber) and borderless (camelot stream) tables.
+        """
+        parsed_pages = []
+
+        with pdfplumber.open(pdf_path) as pdf:
+            for page_num, page in enumerate(pdf.pages, start=1):
+                if page_num < start_page:
+                    continue
+
+                page_data = {"page": page_num, "text": "", "tables": []}
+
+                # --- Two-column text extraction ---
+                width, height = page.width, page.height
+                left_text = page.crop((0, 0, width / 2, height)).extract_text() or ""
+                right_text = page.crop((width / 2, 0, width, height)).extract_text() or ""
+                full_text = (left_text + "\n" + right_text).strip()
+                page_data["text"] = full_text
+
+                # --- Extract tables with pdfplumber (bordered) ---
+                tables = page.extract_tables()
+                added_table = False
+                if tables:
+                    for t_idx, table in enumerate(tables):
+                        if table:
+                            formatted_rows = [[str(cell).replace("\n", " ").strip() if cell else "" for cell in row] for row in table]
+                            if self._is_probably_table(formatted_rows):
+                                table_dict = {
+                                    "table_id": f"{page_num}_{t_idx + 1}",
+                                    "citation": f"Page {page_num}, Table {t_idx + 1}",
+                                    "rows": formatted_rows
+                                }
+                                page_data["tables"].append(table_dict)
+                                added_table = True
+
+                                # ---- DISPLAY TABLE ----
+                                print(f"\n[Extracted Table] {table_dict['citation']}")
+                                for row in formatted_rows:
+                                    print(row)
+                            else:
+                                # Treat as paragraph text
+                                joined_text = " ".join(row[0] for row in formatted_rows if row and row[0])
+                                page_data["text"] += "\n" + joined_text
+
+                # --- Fallback: Try Camelot (borderless) ---
+                if not added_table:
                     try:
-                        page_text = page.extract_text()
-                        if page_text and page_text.strip():
-                            text += f"--- Page {page_num + 1} ---\n{page_text}\n\n"
-                        else:
-                            text += f"--- Page {page_num + 1} ---\n[Content not extractable - may contain images/scanned content]\n\n"
-                    except Exception as page_error:
-                        text += f"--- Page {page_num + 1} ---\n[Error extracting page content: {str(page_error)}]\n\n"
-        except Exception as e:
-            print(f"PyPDF2 extraction also failed: {e}")
-            
-        return text
-    
+                        camelot_tables = camelot.read_pdf(pdf_path, pages=str(page_num), flavor="stream")
+                        for c_idx, c_table in enumerate(camelot_tables):
+                            df = c_table.df  # pandas DataFrame
+                            formatted_rows = df.values.tolist()
+                            if self._is_probably_table(formatted_rows):
+                                table_dict = {
+                                    "table_id": f"{page_num}_c{c_idx + 1}",
+                                    "citation": f"Page {page_num}, Camelot Table {c_idx + 1}",
+                                    "rows": formatted_rows
+                                }
+                                page_data["tables"].append(table_dict)
+
+                                # ---- DISPLAY TABLE ----
+                                print(f"\n[Extracted Table - Camelot] {table_dict['citation']}")
+                                for row in formatted_rows:
+                                    print(row)
+                            else:
+                                # Treat as paragraph text
+                                joined_text = " ".join(row[0] for row in formatted_rows if row and row[0])
+                                page_data["text"] += "\n" + joined_text
+                    except Exception as e:
+                        print(f"[Page {page_num}] Camelot extraction failed: {e}")
+
+                # --- Notify if page has no extractable content ---
+                if not full_text.strip() and not page_data["tables"]:
+                    print(f"[Page {page_num}] contains only images or non-extractable content.")
+
+                parsed_pages.append(page_data)
+
+        return parsed_pages
+
+    # ====================== Backward-compatible single string method ======================
+    def extract_text_from_pdf(self, pdf_path: str, start_page: int = 1) -> str:
+        """
+        Returns combined text as a single string for backward compatibility.
+        """
+        pages_data = self.extract_text_and_tables(pdf_path, start_page=start_page)
+        full_text = "\n".join(page['text'] for page in pages_data if page['text'])
+        return full_text
+
+    # ====================== FDA & section parsing ======================
     def is_fda_format(self, text: str) -> bool:
-        """Check if the document follows FDA format"""
-        fda_section_count = sum(1 for section in self.fda_sections if section.upper() in text.upper())
-        return fda_section_count >= 3
-    
+        count = sum(1 for section in self.fda_sections if section.upper() in text.upper())
+        return count >= 3
+
     def extract_sections(self, text: str) -> List[Dict[str, Any]]:
-        """Extract sections from document, preserving all content with robust parsing"""
         sections = []
         current_section = "INTRODUCTION"
         content = ""
         page_num = 1
         is_fda = self.is_fda_format(text)
-        
-        lines = text.split('\n')
+
+        lines = text.split("\n")
         for line in lines:
-            # Handle page breaks
             if line.startswith("--- Page "):
                 if content.strip():
                     sections.append({
@@ -344,17 +164,15 @@ class PDFProcessor:
                 if match:
                     page_num = int(match.group(1))
                 continue
-            
-            # Handle section headers based on document type
+
             section_match = None
             if is_fda:
                 section_match = self.fda_section_pattern.match(line.upper())
             else:
-                # Generic section detection for non-FDA documents
-                section_match = (re.match(r'^\s*([A-Z][A-Z\s\-]+(?:\.|:)?)\s*$', line) 
-                               and len(line.strip()) < 100 
-                               and not line.strip().isdigit())
-            
+                section_match = (re.match(r'^\s*([A-Z][A-Z\s\-]+(?:\.|:)?)\s*$', line)
+                                 and len(line.strip()) < 100
+                                 and not line.strip().isdigit())
+
             if section_match:
                 if content.strip():
                     sections.append({
@@ -368,8 +186,7 @@ class PDFProcessor:
                 content = ""
             else:
                 content += line + "\n"
-        
-        # Add the final section
+
         if content.strip():
             sections.append({
                 "section": current_section,
@@ -378,43 +195,33 @@ class PDFProcessor:
                 "page_end": page_num,
                 "is_fda": is_fda
             })
-        
+
         return sections
-    
+
+    # ====================== Chunking & DB prep ======================
     def chunk_content(self, content: str, chunk_size: int = 800, overlap: int = 100) -> List[Dict[str, Any]]:
-        """Create semantic chunks with overlap for better context preservation"""
         chunks = []
         words = content.split()
-        
-        # Handle very short content
         if len(words) <= chunk_size:
             return [{"content": content, "chunk_id": "chunk_0"}]
-        
         for i in range(0, len(words), chunk_size - overlap):
             chunk_words = words[i:i + chunk_size]
             chunk_text = " ".join(chunk_words)
-            
-            # Ensure we don't create empty chunks
             if chunk_text.strip():
                 chunks.append({
                     "content": chunk_text,
-                    "chunk_id": f"chunk_{i//chunk_size}"
+                    "chunk_id": f"chunk_{i // chunk_size}"
                 })
-        
         return chunks
-    
+
     def prepare_documents_for_db(self, pdf_name: str, pdf_index: int, sections: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Prepare documents for database insertion with proper metadata"""
         documents_batch = []
-        
         for section in sections:
-            # First ensure sections have chunks
             if "chunks" not in section:
                 section["chunks"] = self.chunk_content(section["content"])
-                
             for chunk in section["chunks"]:
                 doc_id = str(uuid.uuid4())
-                document = {
+                documents_batch.append({
                     "id": doc_id,
                     "content": chunk["content"],
                     "metadata": {
@@ -425,31 +232,25 @@ class PDFProcessor:
                         "page_end": section["page_end"],
                         "is_fda": section.get("is_fda", False),
                         "content_type": self._classify_content_type(chunk["content"]),
-                        "has_tables": "TABLES:" in chunk["content"]  # Track table content
+                        "has_tables": "TABLES:" in chunk["content"]
                     }
-                }
-                documents_batch.append(document)
-        
+                })
         return documents_batch
-    
+
     def _classify_content_type(self, content: str) -> str:
-        """Classify content type for better retrieval"""
         content_lower = content.lower()
-        
         medical_keywords = {
             'dose', 'dosage', 'mg', 'kg', 'injection', 'infusion', 'treatment',
             'therapy', 'side effects', 'adverse', 'contraindications', 'warnings',
             'patient', 'clinical', 'studies', 'efficacy', 'safety', 'medical'
         }
-        
         table_keywords = {'table', 'figure', 'chart', 'graph', 'data', 'results'}
-        
-        # Check for table content first
+
         if "TABLES:" in content or any(keyword in content_lower for keyword in table_keywords):
             return "tabular"
         elif any(keyword in content_lower for keyword in medical_keywords):
             return "medical"
-        elif len(content_lower.split()) < 50:  # Short content
+        elif len(content_lower.split()) < 50:
             return "metadata"
         else:
             return "general"
