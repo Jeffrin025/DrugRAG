@@ -258,14 +258,19 @@ class PDFProcessor:
             if tables:
                 for table_num, table in enumerate(tables):
                     if table and any(any(cell for cell in row) for row in table):
-                        tables_text += f"\nTable {table_num + 1}:\n"
-                        tables_text += self._format_table_as_text(table)
-                        tables_text += "\n"
+                        formatted_table = self._format_table_as_text(table)
+                        
+                        # Print table found and formatted table
+                        print(f"--- Table {table_num + 1} found on Page {page_num + 1} ---")
+                        print(formatted_table)
+                        
+                        tables_text += f"\nTable {table_num + 1}:\n{formatted_table}\n"
                         
         except Exception as e:
             print(f"Table extraction failed on page {page_num}: {e}")
             
         return tables_text
+
     
     def _format_table_as_text(self, table: List[List[str]]) -> str:
         """Convert table data to readable text format"""
@@ -284,6 +289,8 @@ class PDFProcessor:
             # Filter out empty rows
             if any(cell for cell in row):
                 table_text += " | ".join(row) + "\n"
+            print("---  ----------- Row formatted ----------------------")
+            print(table_text)
         
         return table_text
     
