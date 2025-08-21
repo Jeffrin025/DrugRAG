@@ -6,7 +6,7 @@ class QueryProcessor:
     
     def __init__(self, gemini_api_key: str):
         genai.configure(api_key=gemini_api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
     
     def analyze_query(self, query: str) -> Dict[str, Any]:
         """Analyze the query to determine optimal retrieval strategy"""
