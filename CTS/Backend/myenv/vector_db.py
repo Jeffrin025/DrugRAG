@@ -1,0 +1,187 @@
+import chromadb
+import shutil
+from typing import List, Dict, Any, Optional
+import os
+
+class EfficientVectorDB:
+    """Vector database manager for storing and retrieving document chunks"""
+    
+    def __init__(self, persist_directory: str = "./chroma_db"):
+        self.persist_directory = persist_directory
+        self.client = None
+        self.collection = None
+        self._initialized = False
+    
+    def initialize(self, reset: bool = False) -> bool:
+        """Initialize the database with optional cleanup"""
+        try:
+            # Clean up existing database if reset requested
+            if reset and os.path.exists(self.persist_directory):
+                shutil.rmtree(self.persist_directory)
+                print(f"Cleaned up existing database at {self.persist_directory}")
+            
+            # Create or connect to client and collection
+            self.client = chromadb.PersistentClient(path=self.persist_directory)
+            self.collection = self.client.get_or_create_collection(
+                name="medical_documents",
+                metadata={"hnsw:space": "cosine", "description": "FDA drug labels and medical documents"}
+            )
+            
+            self._initialized = True
+            if reset:
+                print("Vector database initialized successfully")
+            else:
+                print("Connected to existing vector database")
+            return True
+            
+        except Exception as e:
+            print(f"Error initializing database: {e}")
+            self._initialized = False
+            return False
+        
+    
+    
+    def is_initialized(self) -> bool:
+        """Check if database is initialized"""
+        return self._initialized and self.collection is not None
+    
+    def add_documents_batch(self, documents_batch: List[Dict[str, Any]]) -> bool:
+        """Add a batch of documents to the database"""
+        if not self.is_initialized() or not documents_batch:
+            return False
+        
+        try:
+            # Separate documents, metadatas, and ids
+            documents = [doc["content"] for doc in documents_batch]
+            metadatas = [doc["metadata"] for doc in documents_batch]
+            ids = [doc["id"] for doc in documents_batch]
+            
+            # Add to collection
+            self.collection.add(
+                documents=documents,
+                metadatas=metadatas,
+                ids=ids
+            )
+            
+            print(f"Added {len(documents_batch)} documents to database")
+            return True
+            
+        except Exception as e:
+            print(f"Error adding documents to database: {e}")
+            return False
+    
+    
+    def get_document_count(self) -> int:
+        """Get the number of documents in the collection"""
+        if not self.is_initialized():
+            return 0
+        try:
+            return self.collection.count()
+        except:
+            return 0
+    
+    def query(self, query_text: str, n_results: int = 5, pdf_filter: str = None) -> List[Dict[str, Any]]:
+        """Query the database with PDF filtering"""
+        if not self.is_initialized():
+            return []
+        
+        try:
+            # Create filter if specific PDF is mentioned
+            where_filter = None
+            if pdf_filter:
+                # Look for PDF names containing the filter text
+                where_filter = {"pdf_name": {"$contains": pdf_filter.lower()}}
+            
+            results = self.collection.query(
+                query_texts=[query_text],
+                n_results=min(n_results * 3, 30),  # Get more results for better filtering
+                where=where_filter
+            )
+            
+            return self._process_query_results(results, n_results)
+            
+        except Exception as e:
+            print(f"Error querying database: {e}")
+            # Fallback to query without filter
+            try:
+                results = self.collection.query(
+                    query_texts=[query_text],
+                    n_results=n_results * 2
+                )
+                return self._process_query_results(results, n_results)
+            except Exception as e2:
+                print(f"Error in fallback query: {e2}")
+                return []
+    
+    def _process_query_results(self, results: Any, n_results: int) -> List[Dict[str, Any]]:
+        """Process and rank query results"""
+        if not results or not results["documents"] or len(results["documents"][0]) == 0:
+            return []
+        
+        scored_results = []
+        
+        for i in range(len(results["documents"][0])):
+            metadata = results["metadatas"][0][i]
+            score = self._calculate_relevance_score(
+                results["documents"][0][i],
+                results["metadatas"][0][i]
+            )
+            
+            scored_results.append({
+                "chunk_text": results["documents"][0][i],
+                "pdf_index": metadata["pdf_index"],
+                "pdf_name": metadata["pdf_name"],
+                "section": metadata["section"],
+                "page_start": metadata["page_start"],
+                "page_end": metadata["page_end"],
+                "is_fda": metadata["is_fda"],
+                "content_type": metadata.get("content_type", "general"),
+                "score": score
+            })
+        
+        # Sort by score and return top results
+        scored_results.sort(key=lambda x: x["score"], reverse=True)
+        return scored_results[:n_results]
+    
+    def _calculate_relevance_score(self, chunk_text: str, metadata: Dict[str, Any]) -> float:
+        """Calculate relevance score based on content and metadata"""
+        score = 0.0
+        
+        # Content type scoring
+        content_type_weights = {
+            "medical": 0.4,
+            "tabular": 0.3,
+            "general": 0.2,
+            "metadata": 0.1
+        }
+        score += content_type_weights.get(metadata.get("content_type", "general"), 0.2)
+        
+        # FDA document bonus
+        if metadata.get("is_fda", False):
+            score += 0.3
+        
+        # Section importance (DOSAGE sections are most relevant for medical queries)
+        section = metadata.get("section", "").lower()
+        if any(key in section for key in ['dosage', 'administration']):
+            score += 0.2
+        elif any(key in section for key in ['adverse', 'warning', 'contraindication']):
+            score += 0.1
+        
+        return min(score, 1.0)  # Cap at 1.0
+    def list_all_documents(self) -> List[str]:
+   
+        if not self.is_initialized():
+            return []
+        
+        try:
+            # Get all documents to see what's actually stored
+            results = self.collection.get()
+            pdf_names = set()
+            
+            for metadata in results["metadatas"]:
+                pdf_names.add(metadata.get("pdf_name", "unknown"))
+            
+            return list(pdf_names)
+        except Exception as e:
+            print(f"Error listing documents: {e}")
+            return []
