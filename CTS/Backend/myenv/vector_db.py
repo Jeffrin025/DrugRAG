@@ -1,139 +1,117 @@
-import chromadb
-import shutil
-from typing import List, Dict, Any
 import os
+from typing import Any, Dict, List, Optional
+import chromadb
 
 class EfficientVectorDB:
-    """Vector database manager for storing and retrieving document chunks"""
-    
-    def __init__(self, persist_directory: str = "./chroma_db"):
+    """
+    Vector database manager for storing and retrieving document chunks.
+    Uses persistent Chroma and NEVER deletes the DB unless reset=True.
+    """
+
+    def __init__(self, persist_directory: str = "./chroma_db", collection_name: str = "medical_documents"):
         self.persist_directory = persist_directory
-        self.client = None
+        self.collection_name = collection_name
+        self.client: Optional[chromadb.PersistentClient] = None
         self.collection = None
-    
-    def initialize(self) -> bool:
-        """Initialize the database with cleanup"""
-        try:
-            # Clean up existing database
-            if os.path.exists(self.persist_directory):
-                shutil.rmtree(self.persist_directory)
-                print(f"Cleaned up existing database at {self.persist_directory}")
-            
-            # Create new client and collection
+
+    def connect(self):
+        if self.client is None:
+            os.makedirs(self.persist_directory, exist_ok=True)
             self.client = chromadb.PersistentClient(path=self.persist_directory)
+        if self.collection is None:
             self.collection = self.client.get_or_create_collection(
-                name="medical_documents",
+                name=self.collection_name,
                 metadata={"hnsw:space": "cosine", "description": "FDA drug labels and medical documents"}
             )
-            print("Vector database initialized successfully")
+
+    def initialize(self, reset: bool = False) -> bool:
+        """
+        Initialize the DB. If reset=True, drops the collection but does NOT delete sqlite file.
+        This avoids Windows file-lock issues.
+        """
+        try:
+            self.connect()
+            if reset:
+                try:
+                    self.client.delete_collection(self.collection_name)
+                except Exception:
+                    pass
+                self.collection = self.client.get_or_create_collection(
+                    name=self.collection_name,
+                    metadata={"hnsw:space": "cosine"}
+                )
             return True
-            
         except Exception as e:
             print(f"Error initializing database: {e}")
             return False
-    
+
     def add_documents_batch(self, documents_batch: List[Dict[str, Any]]) -> bool:
-        """Add a batch of documents to the database"""
-        if not self.collection or not documents_batch:
-            return False
-        
-        try:
-            # Separate documents, metadatas, and ids
-            documents = [doc["content"] for doc in documents_batch]
-            metadatas = [doc["metadata"] for doc in documents_batch]
-            ids = [doc["id"] for doc in documents_batch]
-            
-            # Add to collection
-            self.collection.add(
-                documents=documents,
-                metadatas=metadatas,
-                ids=ids
-            )
-            
-            print(f"Added {len(documents_batch)} documents to database")
+        if not documents_batch:
             return True
-            
-        except Exception as e:
-            print(f"Error adding documents to database: {e}")
-            return False
-    
-    def query(self, query_text: str, n_results: int = 5, **filters) -> List[Dict[str, Any]]:
-        """Query the database with flexible filtering options"""
-        if not self.collection:
-            return []
-        
+        self.connect()
         try:
-            # Build where filter from kwargs
-            where_filter = {}
-            for key, value in filters.items():
-                if value is not None:
-                    where_filter[key] = value
-            
-            # Execute query
-            results = self.collection.query(
-                query_texts=[query_text],
-                n_results=min(n_results * 2, 20),  # Get more results for filtering
-                where=where_filter if where_filter else None
-            )
-            
-            return self._process_query_results(results, n_results)
-            
+            ids = [d["id"] for d in documents_batch]
+            docs = [d["content"] for d in documents_batch]
+            metas = [d["metadata"] for d in documents_batch]
+            self.collection.add(ids=ids, documents=docs, metadatas=metas)
+            print(f"Added {len(ids)} chunks.")
+            return True
         except Exception as e:
-            print(f"Error querying database: {e}")
-            return []
-    
-    def _process_query_results(self, results: Any, n_results: int) -> List[Dict[str, Any]]:
-        """Process and rank query results"""
-        if not results or not results["documents"] or len(results["documents"][0]) == 0:
-            return []
-        
-        scored_results = []
-        
-        for i in range(len(results["documents"][0])):
-            metadata = results["metadatas"][0][i]
-            score = self._calculate_relevance_score(
-                results["documents"][0][i],
-                results["metadatas"][0][i]
-            )
-            
-            scored_results.append({
-                "chunk_text": results["documents"][0][i],
-                "pdf_index": metadata["pdf_index"],
-                "pdf_name": metadata["pdf_name"],
-                "section": metadata["section"],
-                "page_start": metadata["page_start"],
-                "page_end": metadata["page_end"],
-                "is_fda": metadata["is_fda"],
-                "content_type": metadata.get("content_type", "general"),
-                "score": score
+            print(f"Error adding documents: {e}")
+            return False
+
+    def count(self) -> int:
+        self.connect()
+        try:
+            info = self.collection.get(limit=1)
+            # Chroma doesn't return total count directly; fetch a page and use 'ids' length heuristics or get all ids.
+            all_ids = self.collection.get(ids=None, where=None, limit=1_000_000).get("ids", [])
+            return len(all_ids)
+        except Exception:
+            return 0
+
+    def query(self, query_text: str, n_results: int = 5, pdf_name_contains: Optional[str] = None, is_fda: Optional[bool] = None) -> List[Dict[str, Any]]:
+        self.connect()
+        where: Dict[str, Any] = {}
+        if is_fda is not None:
+            where["is_fda"] = is_fda
+        # For case-insensitive contains, we filter client-side after retrieving more results.
+        results = self.collection.query(
+            query_texts=[query_text],
+            n_results=min(n_results * 4, 40),
+            where=where or None
+        )
+        processed: List[Dict[str, Any]] = []
+        docs = results.get("documents", [[]])[0]
+        metas = results.get("metadatas", [[]])[0]
+        for doc, meta in zip(docs, metas):
+            if not doc or not meta:
+                continue
+            if pdf_name_contains:
+                if pdf_name_contains.lower() not in (meta.get("pdf_name_lc") or ""):
+                    continue
+            processed.append({
+                "chunk_text": doc,
+                "pdf_name": meta.get("pdf_name", "unknown"),
+                "section": meta.get("section", ""),
+                "page_start": meta.get("page_start", None),
+                "page_end": meta.get("page_end", None),
+                "is_fda": meta.get("is_fda", False),
+                "content_type": meta.get("content_type", "general"),
+                "score_hint": self._score_hint(meta),
             })
-        
-        # Sort by score and return top results
-        scored_results.sort(key=lambda x: x["score"], reverse=True)
-        return scored_results[:n_results]
-    
-    def _calculate_relevance_score(self, chunk_text: str, metadata: Dict[str, Any]) -> float:
-        """Calculate relevance score based on content and metadata"""
+        processed.sort(key=lambda x: x["score_hint"], reverse=True)
+        return processed[:n_results]
+
+    def _score_hint(self, meta: Dict[str, Any]) -> float:
         score = 0.0
-        
-        # Content type scoring
-        content_type_weights = {
-            "medical": 0.4,
-            "tabular": 0.3,
-            "general": 0.2,
-            "metadata": 0.1
-        }
-        score += content_type_weights.get(metadata.get("content_type", "general"), 0.2)
-        
-        # FDA document bonus
-        if metadata.get("is_fda", False):
+        ct = meta.get("content_type", "general")
+        score += {"medical": 0.4, "tabular": 0.3, "general": 0.2, "metadata": 0.1}.get(ct, 0.2)
+        if meta.get("is_fda"):
             score += 0.3
-        
-        # Section importance (DOSAGE sections are most relevant for medical queries)
-        section = metadata.get("section", "").lower()
-        if any(key in section for key in ['dosage', 'administration']):
+        sec = (meta.get("section") or "").lower()
+        if "dosage" in sec or "administration" in sec:
             score += 0.2
-        elif any(key in section for key in ['adverse', 'warning', 'contraindication']):
+        elif any(k in sec for k in ["adverse", "warning", "contraindication"]):
             score += 0.1
-        
-        return min(score, 1.0)  # Cap at 1.0
+        return min(score, 1.0)
