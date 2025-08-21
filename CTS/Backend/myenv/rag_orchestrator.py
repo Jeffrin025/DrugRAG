@@ -155,7 +155,7 @@ class RAGOrchestrator:
         )
         
         # Return top results without additional filtering
-        return {"retrieved_chunks": retrieved_chunks[:5]}
+        return {"retrieved_chunks": retrieved_chunks[:15]}
     
     def _generate_response(self, state: RAGState) -> dict:
         """Generate response"""
