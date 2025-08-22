@@ -416,9 +416,10 @@ import pandas as pd
 from typing import List, Dict, Any, Tuple, Optional
 import uuid
 import json
+from collections import defaultdict
 
 class PDFProcessor:
-    """Optimized PDF processor for text and table extraction with structured table storage."""
+    """Optimized PDF processor for text and table extraction with proper page tracking"""
 
     def __init__(self):
         # FDA sections
@@ -434,12 +435,43 @@ class PDFProcessor:
             r'^\s*(' + '|'.join(re.escape(section) for section in self.fda_sections) + r')\s*$',
             re.IGNORECASE | re.MULTILINE
         )
+        
+        # Page number detection patterns
+        self.page_number_patterns = [
+            r'^\s*(\d+)\s*$',  # Just a number on a line
+            r'^\s*-\s*(\d+)\s*-\s*$',  # - 1 -
+            r'^\s*Page\s+(\d+)\s*$',  # Page 1
+            r'^\s*(\d+)\s+of\s+\d+\s*$',  # 1 of 10
+        ]
 
-    # ====================== IMPROVED Table Heuristic ======================
+    def _extract_page_number_from_text(self, text: str, page_num: int) -> int:
+        """
+        Try to extract the actual page number from the text content.
+        Returns the detected page number or falls back to the PDF page number.
+        """
+        lines = text.split('\n')
+        
+        # Check first few and last few lines for page numbers
+        check_lines = lines[:5] + lines[-5:]
+        
+        for line in check_lines:
+            line = line.strip()
+            for pattern in self.page_number_patterns:
+                match = re.match(pattern, line, re.IGNORECASE)
+                if match:
+                    try:
+                        detected_page = int(match.group(1))
+                        # Validate that this is a reasonable page number
+                        if 1 <= detected_page <= 1000:  # Reasonable range for documents
+                            return detected_page
+                    except (ValueError, IndexError):
+                        continue
+        
+        # Fall back to PDF page number if no page number detected in text
+        return page_num
+
     def _is_probably_table(self, rows: List[List[str]]) -> bool:
-        """
-        Improved heuristic check to avoid misclassifying paragraphs as tables.
-        """
+        """Improved table detection heuristic"""
         if not rows or len(rows) < 2:
             return False
 
@@ -463,13 +495,10 @@ class PDFProcessor:
         return True
 
     def _is_likely_header_row(self, row: List[str], next_row: Optional[List[str]] = None) -> bool:
-        """
-        Determine if a row is likely a header based on content patterns.
-        """
+        """Determine if a row is likely a header"""
         if not any(cell.strip() for cell in row):
             return False
         
-        # Check for header-like patterns
         header_indicators = 0
         total_cells = len([cell for cell in row if cell.strip()])
         
@@ -479,52 +508,47 @@ class PDFProcessor:
                 continue
                 
             # Header indicators
-            if cell_text.isupper():  # All caps often indicates headers
+            if cell_text.isupper():
                 header_indicators += 1
             elif re.search(r'[%$#&]|\b(rate|ratio|percentage|score|value)\b', cell_text.lower()):
-                header_indicators += 1  # Contains special chars or measurement terms
-            elif len(cell_text) < 20 and not cell_text.isdigit():  # Short, non-numeric text
+                header_indicators += 1
+            elif len(cell_text) < 20 and not cell_text.isdigit():
                 header_indicators += 1
         
         # If next row is provided, check if it contains data (numbers)
         if next_row:
             data_indicators = 0
             for cell in next_row:
-                if re.search(r'\d', cell):  # Contains numbers
+                if re.search(r'\d', cell):
                     data_indicators += 1
                     break
             
             if data_indicators > 0 and header_indicators > 0:
                 return True
         
-        # If no next row, use threshold
         return header_indicators / total_cells > 0.5 if total_cells > 0 else False
 
-    # ====================== IMPROVED Table Structure Processing ======================
-    def _structure_table_data(self, rows: List[List[str]], citation: str) -> Dict[str, Any]:
-        """
-        Improved table structure detection with better header identification.
-        """
+    def _structure_table_data(self, rows: List[List[str]], page_num: int, table_index: int) -> Dict[str, Any]:
+        """Improved table structure detection"""
         if not rows or len(rows) < 2:
             return {
                 "table_id": str(uuid.uuid4()),
-                "citation": citation,
+                "page_number": page_num,
+                "table_index": table_index,
                 "headers": [],
                 "data": [],
                 "text_representation": "",
-                "raw_rows": rows  # Store original rows for reference
+                "raw_rows": rows
             }
         
-        # Try to identify header row using improved logic
-        header_row_idx = 0  # Default to first row
+        # Try to identify header row
+        header_row_idx = 0
         found_header = False
         
-        # Check if first row looks like a header
         if len(rows) > 1 and self._is_likely_header_row(rows[0], rows[1]):
             header_row_idx = 0
             found_header = True
         else:
-            # Look for a header row in the first few rows
             for i in range(min(3, len(rows) - 1)):
                 if self._is_likely_header_row(rows[i], rows[i + 1]):
                     header_row_idx = i
@@ -535,12 +559,11 @@ class PDFProcessor:
             headers = [cell.strip() for cell in rows[header_row_idx]]
             data_rows = rows[header_row_idx + 1:]
         else:
-            # No clear header found, use generic column names
             max_cols = max(len(row) for row in rows)
             headers = [f"Column_{i+1}" for i in range(max_cols)]
-            data_rows = rows  # Use all rows as data
+            data_rows = rows
         
-        # Clean up headers - ensure we have headers for all columns
+        # Clean up headers
         max_data_cols = max((len(row) for row in data_rows), default=0)
         if len(headers) < max_data_cols:
             headers.extend([f"Column_{i+1}" for i in range(len(headers), max_data_cols)])
@@ -548,172 +571,166 @@ class PDFProcessor:
         # Process data rows
         structured_data = []
         for row in data_rows:
-            if any(cell.strip() for cell in row):  # Skip entirely empty rows
-                # Ensure row has same number of columns as headers
+            if any(cell.strip() for cell in row):
                 padded_row = row + [''] * (len(headers) - len(row))
                 structured_data.append([cell.strip() for cell in padded_row])
         
-        # Create text representation for semantic search
-        text_representation = self._create_table_text_representation(headers, structured_data, citation)
+        # Create text representation
+        text_representation = self._create_table_text_representation(headers, structured_data, page_num)
         
         return {
             "table_id": str(uuid.uuid4()),
-            "citation": citation,
+            "page_number": page_num,
+            "table_index": table_index,
             "headers": headers,
             "data": structured_data,
             "text_representation": text_representation,
-            "raw_rows": rows  # Store original for debugging
+            "raw_rows": rows
         }
 
-    def _create_table_text_representation(self, headers: List[str], data: List[List[str]], citation: str) -> str:
-        """
-        Create a textual representation of the table for semantic search.
-        """
-        text_rep = f"Table from {citation}. "
+    def _create_table_text_representation(self, headers: List[str], data: List[List[str]], page_num: int) -> str:
+        """Create comprehensive textual representation of table for better searchability"""
+        text_rep = f"Table from page {page_num}. "
         
         # Add headers
         if headers:
-            text_rep += f"Columns: {', '.join([h for h in headers if h])}. "
+            text_rep += f"Headers: {', '.join([h for h in headers if h])}. "
         
-        # Add sample data (limit to first few rows to avoid too long text)
-        max_sample_rows = min(3, len(data))
-        for i in range(max_sample_rows):
-            row_text = ", ".join([f"{headers[j] if j < len(headers) else f'Column {j+1}'}: {cell}" 
-                                for j, cell in enumerate(data[i]) if cell.strip()])
-            if row_text:
-                text_rep += f"Row {i+1}: {row_text}. "
+        # Add all data rows (not just sample) for comprehensive search
+        for i, row in enumerate(data):
+            if any(cell.strip() for cell in row):  # Skip empty rows
+                row_data = []
+                for j, cell in enumerate(row):
+                    if cell.strip():  # Only include non-empty cells
+                        header_name = headers[j] if j < len(headers) and headers[j] else f"Column_{j+1}"
+                        row_data.append(f"{header_name}: {cell}")
+                
+                if row_data:
+                    text_rep += f"Row {i+1}: {', '.join(row_data)}. "
         
-        if len(data) > max_sample_rows:
-            text_rep += f"Plus {len(data) - max_sample_rows} more rows. "
-            
         return text_rep.strip()
 
-    # ====================== IMPROVED PDF Extraction ======================
+
     def extract_text_and_tables(self, pdf_path: str, start_page: int = 1) -> List[Dict[str, Any]]:
-        """
-        Extract text and tables with improved table detection.
-        """
+        """Extract text and tables with proper page tracking and better error handling"""
         parsed_pages = []
 
         with pdfplumber.open(pdf_path) as pdf:
-            for page_num, page in enumerate(pdf.pages, start=1):
-                if page_num < start_page:
+            for pdf_page_num, page in enumerate(pdf.pages, start=1):
+                if pdf_page_num < start_page:
                     continue
 
-                page_data = {"page": page_num, "text": "", "tables": []}
-
-                # --- Two-column text extraction ---
-                width, height = page.width, page.height
-                left_text = page.crop((0, 0, width / 2, height)).extract_text() or ""
-                right_text = page.crop((width / 2, 0, width, height)).extract_text() or ""
-                full_text = (left_text + "\n" + right_text).strip()
-                page_data["text"] = full_text
-
-                # --- Extract tables with pdfplumber (bordered) ---
-                tables = page.extract_tables()
-                added_table = False
+                # Extract text first to detect actual page number
+                full_text = page.extract_text() or ""
+                actual_page_num = self._extract_page_number_from_text(full_text, pdf_page_num)
                 
-                if tables:
-                    for t_idx, table in enumerate(tables):
-                        if table:
-                            formatted_rows = [[str(cell).replace("\n", " ").strip() if cell else "" for cell in row] for row in table]
-                            if self._is_probably_table(formatted_rows):
-                                citation = f"Page {page_num}, Table {t_idx + 1}"
-                                structured_table = self._structure_table_data(formatted_rows, citation)
-                                page_data["tables"].append(structured_table)
-                                added_table = True
+                page_data = {
+                    "pdf_page_number": pdf_page_num,
+                    "actual_page_number": actual_page_num,
+                    "text": full_text,
+                    "tables": []
+                }
 
-                                # ---- DISPLAY TABLE ----
-                                print(f"\n[Extracted Table] {citation}")
-                                print(f"Headers: {structured_table['headers']}")
-                                for i, row in enumerate(structured_table['data']):
-                                    print(f"Row {i}: {row}")
-                                    
-                                # Print structured table information
-                                print(f"\n[Table Structure] Header row identified: {structured_table['headers']}")
-                                print(f"[Table Structure] Number of data rows: {len(structured_table['data'])}")
-                                print(f"[Table Structure] Text representation: {structured_table['text_representation'][:200]}...")
-                            else:
-                                # Treat as paragraph text
-                                joined_text = " ".join(row[0] for row in formatted_rows if row and row[0])
-                                page_data["text"] += "\n" + joined_text
+                # Extract tables with pdfplumber (bordered tables)
+                try:
+                    tables = page.extract_tables()
+                    if tables:
+                        for t_idx, table in enumerate(tables):
+                            if table:
+                                formatted_rows = [[str(cell).replace("\n", " ").strip() if cell else "" for cell in row] for row in table]
+                                if self._is_probably_table(formatted_rows):
+                                    structured_table = self._structure_table_data(formatted_rows, actual_page_num, t_idx + 1)
+                                    page_data["tables"].append(structured_table)
+                                    print(f"✓ Found table on page {actual_page_num} (PDFplumber)")
+                                else:
+                                    # Treat as paragraph text
+                                    joined_text = " ".join(row[0] for row in formatted_rows if row and row[0])
+                                    page_data["text"] += "\n" + joined_text
+                except Exception as e:
+                    print(f"⚠️ PDFplumber table extraction error on page {pdf_page_num}: {e}")
 
-                # --- Fallback: Try Camelot (borderless) ---
-                if not added_table:
+                # Try Camelot for borderless tables (with suppressed warnings)
+                if not page_data["tables"]:
                     try:
-                        camelot_tables = camelot.read_pdf(pdf_path, pages=str(page_num), flavor="stream")
-                        for c_idx, c_table in enumerate(camelot_tables):
-                            df = c_table.df
-                            formatted_rows = df.values.tolist()
+                        # Temporarily suppress Camelot warnings
+                        import warnings
+                        with warnings.catch_warnings():
+                            warnings.filterwarnings("ignore", category=UserWarning, module="camelot")
                             
-                            if self._is_probably_table(formatted_rows):
-                                citation = f"Page {page_num}, Camelot Table {c_idx + 1}"
-                                structured_table = self._structure_table_data(formatted_rows, citation)
-                                page_data["tables"].append(structured_table)
-
-                                # ---- DISPLAY TABLE ----
-                                print(f"\n[Extracted Table - Camelot] {citation}")
-                                print(f"Headers: {structured_table['headers']}")
-                                for i, row in enumerate(structured_table['data']):
-                                    print(f"Row {i}: {row}")
-                                    
-                                # Print structured table information
-                                print(f"\n[Table Structure] Header row identified: {structured_table['headers']}")
-                                print(f"[Table Structure] Number of data rows: {len(structured_table['data'])}")
-                                print(f"[Table Structure] Text representation: {structured_table['text_representation']}")
-                            else:
-                                # Treat as paragraph text
-                                joined_text = " ".join(row[0] for row in formatted_rows if row and row[0])
-                                page_data["text"] += "\n" + joined_text
+                            camelot_tables = camelot.read_pdf(pdf_path, pages=str(pdf_page_num), flavor="stream")
+                            for c_idx, c_table in enumerate(camelot_tables):
+                                df = c_table.df
+                                formatted_rows = df.values.tolist()
+                                
+                                if self._is_probably_table(formatted_rows):
+                                    structured_table = self._structure_table_data(formatted_rows, actual_page_num, c_idx + 1)
+                                    page_data["tables"].append(structured_table)
+                                    print(f"✓ Found table on page {actual_page_num} (Camelot)")
+                                else:
+                                    joined_text = " ".join(row[0] for row in formatted_rows if row and row[0])
+                                    page_data["text"] += "\n" + joined_text
                     except Exception as e:
-                        print(f"[Page {page_num}] Camelot extraction failed: {e}")
-
-                # --- Notify if page has no extractable content ---
-                if not full_text.strip() and not page_data["tables"]:
-                    print(f"[Page {page_num}] contains only images or non-extractable content.")
+                        print(f"⚠️ Camelot table extraction error on page {pdf_page_num}: {e}")
 
                 parsed_pages.append(page_data)
+                
+                # Print progress
+                if pdf_page_num % 10 == 0 or pdf_page_num == len(pdf.pages):
+                    print(f"Processed page {pdf_page_num}/{len(pdf.pages)}")
 
         return parsed_pages
-
-    # ====================== Backward-compatible single string method ======================
+    
     def extract_text_from_pdf(self, pdf_path: str, start_page: int = 1) -> str:
         """
         Returns combined text as a single string for backward compatibility.
+        This method is needed for the existing RAGOrchestrator code.
         """
         pages_data = self.extract_text_and_tables(pdf_path, start_page=start_page)
         full_text = "\n".join(page['text'] for page in pages_data if page['text'])
         return full_text
 
-    # ====================== FDA & section parsing ======================
     def is_fda_format(self, text: str) -> bool:
         count = sum(1 for section in self.fda_sections if section.upper() in text.upper())
         return count >= 3
 
-    def extract_sections(self, text: str) -> List[Dict[str, Any]]:
+    def extract_sections(self, pages_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Extract sections with proper page tracking"""
+        if not pages_data:
+            return []
+        
+        # Combine text from all pages with page markers
+        combined_text = ""
+        for page in pages_data:
+            combined_text += f"\n--- Page {page['actual_page_number']} ---\n{page['text']}"
+        
+        is_fda = self.is_fda_format(combined_text)
         sections = []
         current_section = "INTRODUCTION"
         content = ""
-        page_num = 1
-        is_fda = self.is_fda_format(text)
+        current_page = pages_data[0]['actual_page_number'] if pages_data else 1
+        page_start = current_page
 
-        lines = text.split("\n")
+        lines = combined_text.split("\n")
         for line in lines:
+            # Check for page markers
             if line.startswith("--- Page "):
                 if content.strip():
                     sections.append({
                         "section": current_section,
                         "content": content.strip(),
-                        "page_start": page_num,
-                        "page_end": page_num,
+                        "page_start": page_start,
+                        "page_end": current_page,
                         "is_fda": is_fda
                     })
-                content = ""
+                    content = ""
+                
                 match = re.match(r'--- Page (\d+) ---', line)
                 if match:
-                    page_num = int(match.group(1))
+                    current_page = int(match.group(1))
+                    page_start = current_page
                 continue
 
+            # Check for section headers
             section_match = None
             if is_fda:
                 section_match = self.fda_section_pattern.match(line.upper())
@@ -727,12 +744,13 @@ class PDFProcessor:
                     sections.append({
                         "section": current_section,
                         "content": content.strip(),
-                        "page_start": page_num,
-                        "page_end": page_num,
+                        "page_start": page_start,
+                        "page_end": current_page,
                         "is_fda": is_fda
                     })
                 current_section = line.strip().upper()
                 content = ""
+                page_start = current_page
             else:
                 content += line + "\n"
 
@@ -740,14 +758,13 @@ class PDFProcessor:
             sections.append({
                 "section": current_section,
                 "content": content.strip(),
-                "page_start": page_num,
-                "page_end": page_num,
+                "page_start": page_start,
+                "page_end": current_page,
                 "is_fda": is_fda
             })
 
         return sections
 
-    # ====================== Chunking & DB prep ======================
     def chunk_content(self, content: str, chunk_size: int = 800, overlap: int = 100) -> List[Dict[str, Any]]:
         chunks = []
         words = content.split()
@@ -763,13 +780,10 @@ class PDFProcessor:
                 })
         return chunks
 
-    # ====================== Database Preparation ======================
     def prepare_documents_for_db(self, pdf_name: str, pdf_index: int, 
-                                sections: List[Dict[str, Any]], 
+                            sections: List[Dict[str, Any]], 
                                 tables: List[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
-        """
-        Prepare documents for database storage, including both text and tables.
-        """
+        """Prepare documents for database with enhanced table processing"""
         documents_batch = []
         
         # Process text sections
@@ -778,62 +792,127 @@ class PDFProcessor:
                 section["chunks"] = self.chunk_content(section["content"])
             for chunk in section["chunks"]:
                 doc_id = str(uuid.uuid4())
+                metadata = {
+                    "pdf_index": pdf_index,
+                    "pdf_name": pdf_name,
+                    "section": section["section"],
+                    "page_start": section["page_start"],
+                    "page_end": section["page_end"],
+                    "is_fda": section.get("is_fda", False),
+                    "content_type": self._classify_content_type(chunk["content"]),
+                    "has_tables": False,
+                    "doc_type": "text"
+                }
+                
                 documents_batch.append({
                     "id": doc_id,
                     "content": chunk["content"],
-                    "metadata": {
-                        "pdf_index": pdf_index,
-                        "pdf_name": pdf_name,
-                        "section": section["section"],
-                        "page_start": section["page_start"],
-                        "page_end": section["page_end"],
-                        "is_fda": section.get("is_fda", False),
-                        "content_type": self._classify_content_type(chunk["content"]),
-                        "has_tables": False,
-                        "doc_type": "text"
-                    }
+                    "metadata": self._ensure_chromadb_compatible(metadata)
                 })
         
-        # Process tables with improved metadata
+        # Process tables with enhanced content
         if tables:
-            print(f"\n[Database Preparation] Preparing {len(tables)} tables for database storage...")
-            for table in tables:
+            print(f"Processing {len(tables)} tables for database...")
+            for table_idx, table in enumerate(tables):
                 doc_id = str(uuid.uuid4())
+                
+                # Create more detailed table content for better searchability
+                detailed_content = self._create_detailed_table_content(table)
+                
+                metadata = {
+                    "pdf_index": pdf_index,
+                    "pdf_name": pdf_name,
+                    "section": "TABULAR_DATA",
+                    "page_start": table["page_number"],
+                    "page_end": table["page_number"],
+                    "is_fda": False,
+                    "content_type": "tabular",
+                    "has_tables": True,
+                    "doc_type": "table",
+                    "table_id": table["table_id"],
+                    "table_index": table["table_index"],
+                    "citation": f"Page {table['page_number']}, Table {table['table_index']}",
+                    "table_headers": table["headers"],
+                    "table_row_count": len(table["data"]),
+                    "table_data_sample": json.dumps(table["data"][:3]) if table["data"] else "[]"
+                }
+                
                 table_doc = {
                     "id": doc_id,
-                    "content": table["text_representation"],
-                    "metadata": {
-                        "pdf_index": pdf_index,
-                        "pdf_name": pdf_name,
-                        "section": "TABULAR_DATA",
-                        "page_start": self._extract_page_from_citation(table["citation"]),
-                        "page_end": self._extract_page_from_citation(table["citation"]),
-                        "is_fda": False,
-                        "content_type": "tabular",
-                        "has_tables": True,
-                        "doc_type": "table",
-                        "table_id": table["table_id"],
-                        "citation": table["citation"],
-                        "table_headers": table["headers"],
-                        "table_data": json.dumps(table["data"]),
-                        "table_data_full": json.dumps(table["raw_rows"])  # Store original table structure
-                    }
+                    "content": detailed_content,  # Use detailed content instead of basic representation
+                    "metadata": self._ensure_chromadb_compatible(metadata)
                 }
                 documents_batch.append(table_doc)
                 
-                # Print table document information
-                print(f"\n[Table Document] ID: {doc_id}")
-                print(f"[Table Document] Citation: {table['citation']}")
-                print(f"[Table Document] Headers: {table['headers']}")
-                print(f"[Table Document] Data rows: {len(table['data'])}")
-                print(f"[Table Document] Content preview: {table_doc['content']}...")
+                # Also create individual row documents for better searchability
+                row_docs = self._create_row_documents(table, pdf_name, pdf_index)
+                documents_batch.extend(row_docs)
         
         return documents_batch
 
-    def _extract_page_from_citation(self, citation: str) -> int:
-        """Extract page number from citation string."""
-        match = re.search(r'Page (\d+)', citation)
-        return int(match.group(1)) if match else 1
+    def _create_detailed_table_content(self, table: Dict[str, Any]) -> str:
+        """Create comprehensive table content for semantic search"""
+        content = f"Table on page {table['page_number']}. "
+        
+        # Add headers
+        if table["headers"]:
+            content += f"Table headers: {', '.join([h for h in table['headers'] if h])}. "
+        
+        # Add all data with context
+        for i, row in enumerate(table["data"]):
+            if any(cell.strip() for cell in row):
+                row_content = []
+                for j, cell in enumerate(row):
+                    if cell.strip():
+                        header = table["headers"][j] if j < len(table["headers"]) else f"Column_{j+1}"
+                        row_content.append(f"{header}: {cell}")
+                
+                if row_content:
+                    content += f"Row {i+1}: {', '.join(row_content)}. "
+        
+        return content
+
+    def _create_row_documents(self, table: Dict[str, Any], pdf_name: str, pdf_index: int, pdf_page_num: int) -> List[Dict[str, Any]]:
+        """Create individual documents for each table row"""
+        row_documents = []
+        
+        for row_idx, row in enumerate(table["data"]):
+            if any(cell.strip() for cell in row):
+                doc_id = str(uuid.uuid4())
+                
+                # Create row content
+                row_content = []
+                for col_idx, cell in enumerate(row):
+                    if cell.strip():
+                        header = table["headers"][col_idx] if col_idx < len(table["headers"]) else f"Column_{col_idx+1}"
+                        row_content.append(f"{header}: {cell}")
+                
+                if row_content:
+                    content = f"Table data from page {pdf_page_num}: {', '.join(row_content)}"
+                    
+                    metadata = {
+                        "pdf_index": pdf_index,
+                        "pdf_name": pdf_name,
+                        "section": "TABULAR_DATA_ROW",
+                        "pdf_page_number": pdf_page_num,  # Use PDF page number
+                        "detected_page_number": table["page_number"],  # Detected page number
+                        "is_fda": False,
+                        "content_type": "tabular_row",
+                        "has_tables": True,
+                        "doc_type": "table_row",
+                        "table_id": table["table_id"],
+                        "table_index": table["table_index"],
+                        "row_index": row_idx,
+                        "citation": f"Page {pdf_page_num}, Table {table['table_index']}, Row {row_idx+1}"
+                    }
+                    
+                    row_documents.append({
+                        "id": doc_id,
+                        "content": content,
+                        "metadata": self._ensure_chromadb_compatible(metadata)
+                    })
+        
+        return row_documents
 
     def _classify_content_type(self, content: str) -> str:
         content_lower = content.lower()
@@ -852,20 +931,102 @@ class PDFProcessor:
             return "metadata"
         else:
             return "general"
+        
+    def _ensure_chromadb_compatible(self, metadata: Dict[str, Any]) -> Dict[str, Any]:
+        """Ensure all metadata values are compatible with ChromaDB"""
+        compatible_metadata = {}
+        for key, value in metadata.items():
+            if isinstance(value, (list, tuple)):
+                # Convert lists to JSON strings
+                compatible_metadata[key] = json.dumps(value)
+            elif isinstance(value, (str, int, float, bool)) or value is None:
+                compatible_metadata[key] = value
+            else:
+                # Convert other types to string
+                compatible_metadata[key] = str(value)
+        return compatible_metadata
 
-    # ====================== Main processing method ======================
+    def prepare_documents_for_db(self, pdf_name: str, pdf_index: int, 
+                            sections: List[Dict[str, Any]], 
+                            tables: List[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """Prepare documents for database with proper page tracking"""
+        documents_batch = []
+        
+        # Process text sections - use PDF page numbers for citations
+        for section in sections:
+            if "chunks" not in section:
+                section["chunks"] = self.chunk_content(section["content"])
+            for chunk in section["chunks"]:
+                doc_id = str(uuid.uuid4())
+                metadata = {
+                    "pdf_index": pdf_index,
+                    "pdf_name": pdf_name,
+                    "section": section["section"],
+                    "pdf_page_start": section["page_start"],  # Store PDF page numbers
+                    "pdf_page_end": section["page_end"],      # Store PDF page numbers
+                    "detected_page_start": section["page_start"],  # Detected page numbers
+                    "detected_page_end": section["page_end"],      # Detected page numbers
+                    "is_fda": section.get("is_fda", False),
+                    "content_type": self._classify_content_type(chunk["content"]),
+                    "has_tables": False,
+                    "doc_type": "text"
+                }
+                
+                documents_batch.append({
+                    "id": doc_id,
+                    "content": chunk["content"],
+                    "metadata": self._ensure_chromadb_compatible(metadata)
+                })
+        
+        # Process tables - use PDF page numbers for citations
+        if tables:
+            print(f"Processing {len(tables)} tables for database...")
+            for table_idx, table in enumerate(tables):
+                doc_id = str(uuid.uuid4())
+                
+                # Use PDF page number for citation (not detected page number)
+                pdf_page_num = table.get("pdf_page_number", table["page_number"])
+                
+                detailed_content = self._create_detailed_table_content(table)
+                
+                metadata = {
+                    "pdf_index": pdf_index,
+                    "pdf_name": pdf_name,
+                    "section": "TABULAR_DATA",
+                    "pdf_page_number": pdf_page_num,  # PDF page number
+                    "detected_page_number": table["page_number"],  # Detected page number
+                    "is_fda": False,
+                    "content_type": "tabular",
+                    "has_tables": True,
+                    "doc_type": "table",
+                    "table_id": table["table_id"],
+                    "table_index": table["table_index"],
+                    "citation": f"Page {pdf_page_num}, Table {table['table_index']}",
+                    "table_headers": table["headers"],
+                    "table_row_count": len(table["data"]),
+                    "table_data_sample": json.dumps(table["data"][:3]) if table["data"] else "[]"
+                }
+                
+                table_doc = {
+                    "id": doc_id,
+                    "content": detailed_content,
+                    "metadata": self._ensure_chromadb_compatible(metadata)
+                }
+                documents_batch.append(table_doc)
+                
+                # Also create individual row documents
+                row_docs = self._create_row_documents(table, pdf_name, pdf_index, pdf_page_num)
+                documents_batch.extend(row_docs)
+        
+        return documents_batch
+
     def process_pdf_for_db(self, pdf_path: str, pdf_index: int = 0) -> List[Dict[str, Any]]:
-        """
-        Complete PDF processing pipeline for database storage.
-        """
+        """Complete PDF processing pipeline"""
         pdf_name = os.path.basename(pdf_path)
         print(f"\n[Processing] Starting processing for {pdf_name}...")
         
-        # Extract text and tables
+        # Extract text and tables with proper page tracking
         pages_data = self.extract_text_and_tables(pdf_path)
-        
-        # Combine all text for section parsing
-        full_text = "\n".join(page['text'] for page in pages_data if page['text'])
         
         # Extract all tables from all pages
         all_tables = []
@@ -874,8 +1035,8 @@ class PDFProcessor:
         
         print(f"\n[Processing Summary] Extracted {len(all_tables)} tables from {len(pages_data)} pages")
         
-        # Extract sections from text
-        sections = self.extract_sections(full_text)
+        # Extract sections from pages data
+        sections = self.extract_sections(pages_data)
         print(f"[Processing Summary] Identified {len(sections)} sections in the document")
         
         # Prepare documents for database

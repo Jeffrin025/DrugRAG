@@ -91,16 +91,22 @@ class RAGOrchestrator:
         
         print(f"Processing {pdf_file} ({len(state['processed_pdfs']) + 1}/{len(state['pdf_files']) + len(state['processed_pdfs'])})...")
         
-        # Extract and process text
-        text = self.pdf_processor.extract_text_from_pdf(pdf_path)
-        if not text.strip() or "Error extracting" in text:
+        # Extract and process text AND tables with proper page tracking
+        pages_data = self.pdf_processor.extract_text_and_tables(pdf_path)
+        if not pages_data:
             print(f"Warning: Could not process {pdf_file}")
             return {"pdf_files": state["pdf_files"][1:], "current_pdf": None}
         
-        sections = self.pdf_processor.extract_sections(text)
+        # Extract sections from the pages data (not from raw text)
+        sections = self.pdf_processor.extract_sections(pages_data)
         if not sections:
             print(f"Warning: No sections found in {pdf_file}")
             return {"pdf_files": state["pdf_files"][1:], "current_pdf": None}
+        
+        # Extract all tables from all pages
+        all_tables = []
+        for page in pages_data:
+            all_tables.extend(page['tables'])
         
         # Chunk sections
         for section in sections:
@@ -109,7 +115,8 @@ class RAGOrchestrator:
         current_pdf = {
             "name": pdf_file,
             "index": pdf_index,
-            "sections": sections
+            "sections": sections,
+            "tables": all_tables  # Include tables in the PDF data
         }
         
         return {
@@ -126,7 +133,8 @@ class RAGOrchestrator:
         documents_batch = self.pdf_processor.prepare_documents_for_db(
             current_pdf["name"], 
             current_pdf["index"], 
-            current_pdf["sections"]
+            current_pdf["sections"],
+            current_pdf.get("tables", [])  # Pass tables to the preparation method
         )
         
         success = self.vector_db.add_documents_batch(documents_batch)

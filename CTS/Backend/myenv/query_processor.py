@@ -49,52 +49,74 @@ class QueryProcessor:
         }
     
     def format_retrieved_info(self, retrieved_chunks: List[Dict[str, Any]]) -> str:
-        """Format retrieved information with detailed citations"""
+        """Format retrieved information using PDF page numbers for citations"""
         if not retrieved_chunks:
             return "No relevant information found in the documents."
         
         formatted_info = ""
         for i, chunk in enumerate(retrieved_chunks, 1):
-            citation = f"Source: [PDF: {chunk['pdf_name']}"
-            if chunk.get('section'):
-                citation += f", Section: {chunk['section']}"
-            if chunk.get('page_start') and chunk.get('page_end'):
-                citation += f", Pages {chunk['page_start']}-{chunk['page_end']}"
-            citation += "]"
+            # Use PDF page number for citation (preferred over detected page number)
+            page_num = chunk.get('pdf_page_number', chunk.get('pdf_page_start', chunk.get('page_start', 1)))
+            
+            citation_parts = [f"Source: [PDF: {chunk['pdf_name']}"]
+            
+            if chunk.get('section') and chunk['section'] not in ["TABULAR_DATA", "TABULAR_DATA_ROW"]:
+                citation_parts.append(f"Section: {chunk['section']}")
+            
+            citation_parts.append(f"Page: {page_num}")
+            
+            # Add table context if available
+            if chunk.get('doc_type') in ['table', 'table_row']:
+                if chunk.get('table_index'):
+                    citation_parts.append(f"Table: {chunk['table_index']}")
+                if chunk.get('row_index') is not None:
+                    citation_parts.append(f"Row: {chunk['row_index'] + 1}")
+            
+            citation = ", ".join(citation_parts) + "]"
             
             formatted_info += f"{i}. {citation}\n{chunk['chunk_text']}\n\n"
         
         return formatted_info
-    
+        
     def generate_response(self, user_query: str, retrieved_info: str) -> str:
-        """Generate response using Gemini with proper citation enforcement"""
+        """Generate natural, conversational response using Gemini with proper source consolidation"""
         prompt = f"""
-You are a medical information specialist. Based EXCLUSIVELY on the following retrieved information from FDA drug labels and medical documents, please provide a comprehensive answer to the user's question.
+    You are a medical information specialist providing answers about FDA-approved medications. Your task is to answer the user's question based EXCLUSIVELY on the provided retrieved information from official FDA drug labels.
 
-USER QUESTION: {user_query}
+    USER QUESTION: {user_query}
 
-RETRIEVED INFORMATION WITH SOURCE CITATIONS:
-{retrieved_info}
+    RETRIEVED INFORMATION WITH SOURCE CITATIONS:
+    {retrieved_info}
 
-CRITICAL INSTRUCTIONS:
-1. Answer using ONLY the information provided above - DO NOT use any external knowledge
-2. Be specific, precise, and medically accurate
-3. You MUST include the exact source citations in your response for every piece of information
-4. Use this citation format: "Source: [PDF: filename, Section: section_name, Pages X-X]"
-5. If multiple sources provide the same information, cite all relevant sources
-6. If the information cannot be found in the retrieved content, clearly state: "Not found in prescribing information."
-7. Keep the response concise but comprehensive
-8. For dosage information, always include specific amounts and administration details
-9. For side effects, list the most common and serious ones with frequencies if available
+    CRITICAL INSTRUCTIONS:
+    1.  **Answer using ONLY the information provided above - DO NOT use any external knowledge.**
+    2.  **Natural Conversation:** Write your response as if you're having a natural conversation with the user. Do not use formal headings like "SUMMARY:" or "SOURCES:".
+    3.  **Clear Organization:** Present the information in a well-structured, easy-to-read format using natural paragraphs and bullet points when appropriate.
+    4.  **Source Integration:** Naturally incorporate the source information into your response. At the end, mention "This information comes from:" followed by the consolidated sources.
+    5.  **CONSOLIDATE SOURCES:** If the same source (same PDF, same Section, same Page) is mentioned multiple times, list it ONLY ONCE.
+    6.  **PAGE ACCURACY:** Ensure page numbers in sources match exactly what was provided in the retrieved information.
 
-IMPORTANT: Your response MUST include proper source citations for every factual statement.
+    Write your response in a friendly, professional tone as if you're explaining this to someone directly.
 
-ANSWER:
-"""
+    RESPONSE:
+    """
         
         try:
             response = self.model.generate_content(prompt)
-            return response.text
+            
+            # Clean up the response to ensure natural formatting
+            response_text = response.text
+            
+            # Remove any residual markdown formatting that might appear
+            response_text = response_text.replace("**", "").replace("__", "")
+            
+            # Ensure the response ends with proper source attribution
+            if "This information comes from:" not in response_text and "Source:" not in response_text:
+                # Extract and add sources if not already included
+                sources_section = "\n\nThis information comes from the official prescribing information."
+                response_text += sources_section
+            
+            return response_text
+            
         except Exception as e:
-
-            return f"Error generating response: {str(e)}"
+            return f"I apologize, but I encountered an error while generating the response. Please try again later."

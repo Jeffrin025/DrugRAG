@@ -81,7 +81,7 @@ class EfficientVectorDB:
             return 0
     
     def query(self, query_text: str, n_results: int = 5, pdf_filter: str = None) -> List[Dict[str, Any]]:
-        """Query the database with PDF filtering"""
+        """Query the database with PDF filtering and robust error handling"""
         if not self.is_initialized():
             return []
         
@@ -102,7 +102,7 @@ class EfficientVectorDB:
             
         except Exception as e:
             print(f"Error querying database: {e}")
-            # Fallback to query without filter
+            # Fallback to query without any filters
             try:
                 results = self.collection.query(
                     query_texts=[query_text],
@@ -111,10 +111,11 @@ class EfficientVectorDB:
                 return self._process_query_results(results, n_results)
             except Exception as e2:
                 print(f"Error in fallback query: {e2}")
+                # Return empty results instead of crashing
                 return []
     
     def _process_query_results(self, results: Any, n_results: int) -> List[Dict[str, Any]]:
-        """Process and rank query results"""
+        """Process and rank query results with robust metadata handling"""
         if not results or not results["documents"] or len(results["documents"][0]) == 0:
             return []
         
@@ -122,20 +123,31 @@ class EfficientVectorDB:
         
         for i in range(len(results["documents"][0])):
             metadata = results["metadatas"][0][i]
+            
+            # Handle both old and new metadata formats
+            page_start = metadata.get('pdf_page_start', metadata.get('page_start', 1))
+            page_end = metadata.get('pdf_page_end', metadata.get('page_end', page_start))
+            
             score = self._calculate_relevance_score(
                 results["documents"][0][i],
-                results["metadatas"][0][i]
+                metadata
             )
             
             scored_results.append({
                 "chunk_text": results["documents"][0][i],
-                "pdf_index": metadata["pdf_index"],
-                "pdf_name": metadata["pdf_name"],
-                "section": metadata["section"],
-                "page_start": metadata["page_start"],
-                "page_end": metadata["page_end"],
-                "is_fda": metadata["is_fda"],
+                "pdf_index": metadata.get("pdf_index", 0),
+                "pdf_name": metadata.get("pdf_name", "unknown"),
+                "section": metadata.get("section", ""),
+                "page_start": page_start,
+                "page_end": page_end,
+                "pdf_page_number": metadata.get("pdf_page_number", page_start),
+                "pdf_page_start": metadata.get("pdf_page_start", page_start),
+                "pdf_page_end": metadata.get("pdf_page_end", page_end),
+                "is_fda": metadata.get("is_fda", False),
                 "content_type": metadata.get("content_type", "general"),
+                "doc_type": metadata.get("doc_type", "text"),
+                "table_index": metadata.get("table_index"),
+                "row_index": metadata.get("row_index"),
                 "score": score
             })
         
