@@ -1,0 +1,1902 @@
+[
+  {
+    "text": "hey",
+    "intent": "greeting"
+  },
+  {
+    "text": "what is humira used for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me a joke",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "what are the side effects of Opdivo?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "good morning",
+    "intent": "greeting"
+  },
+  {
+    "text": "what is the weather like in Chennai?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "dosage information for Orencia",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can I take ibuprofen with mounjaro?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "who won the last IPL match?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "hello there",
+    "intent": "greeting"
+  },
+  {
+    "text": "warnings for Simponi Aria",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how does Remicade work?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what are the contraindications for Stelara?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "does Prilosec interact with other drugs?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "recommend a good movie to watch",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "is Xeljanz safe during pregnancy?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how often should I take Rinvoq?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is methadone?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hey bot",
+    "intent": "greeting"
+  },
+  {
+    "text": "tell me about Epclusa",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the capital of Tamil Nadu?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "side effects of Herceptin",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how much Olumiant is prescribed for rheumatoid arthritis?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can tocilizumab cause fatigue?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's the latest in tech news?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "tell me about Yondelis indications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how is the Alora patch applied?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Dalvance dosage instructions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "common side effects of Jakafi",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is Opzelura cream used for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yo",
+    "intent": "greeting"
+  },
+  {
+    "text": "who is the best cricket player?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "can I drink alcohol while on Humira?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the mechanism of action for Orencia?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about Simponi Aria infusion",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is remicade a biologic?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what conditions does Stelara treat?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "play some music",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "how much ibuprofen is safe to take in a day?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is prilosec over the counter?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "warnings associated with Xeljanz",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how are you",
+    "intent": "greeting"
+  },
+  {
+    "text": "Does Rinvoq have a black box warning?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the price of Mounjaro?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's for dinner tonight?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "adverse reactions to Methadone",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how effective is Epclusa for Hepatitis C?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin for breast cancer",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can mounjaro help with weight loss?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "long-term side effects of Olumiant",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how is tocilizumab administered?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's the score of the football game?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "hi there",
+    "intent": "greeting"
+  },
+  {
+    "text": "What is Yondelis's main indication?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Alora patch side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can I get Dalvance as a pill?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What are the risks of taking Jakafi?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to apply Opzelura",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Opdivo interactions with other cancer drugs",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about Humira dosage for Crohn's disease",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can you book me a flight?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Orencia contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "good afternoon",
+    "intent": "greeting"
+  },
+  {
+    "text": "Does Simponi Aria cause hair loss?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what to avoid when taking Remicade",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "How long does Stelara stay in your system?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can ibuprofen damage kidneys?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me the latest news headlines",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Prilosec and vitamin B12 deficiency",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Xeljanz for psoriatic arthritis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Is Rinvoq an immunosuppressant?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how's it going",
+    "intent": "greeting"
+  },
+  {
+    "text": "Methadone withdrawal symptoms",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What is the success rate of Epclusa?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What type of cancer is Herceptin for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Mounjaro pen instructions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about Olumiant for alopecia",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Does Tocilizumab affect blood pressure?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's the tallest building in the world?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Yondelis drug class",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Alora patch and menopause",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "How many doses of Dalvance are needed?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Jakafi and anemia",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Opzelura for vitiligo",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can I take Tylenol with Opdivo?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "greetings",
+    "intent": "greeting"
+  },
+  {
+    "text": "Humira self-injection guide",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is a black hole?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "what is the standard dose for Orencia?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria side effect rash",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Remicade infusion time",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Stelara and risk of infection",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can you take ibuprofen on an empty stomach?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "who directed the movie 'Inception'?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Prilosec for GERD",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Xeljanz dosage for ulcerative colitis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Rinvoq and cholesterol levels",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hi",
+    "intent": "greeting"
+  },
+  {
+    "text": "Methadone for pain management",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can Epclusa cure Hep C?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Herceptin infusion reactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's the most popular song right now?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "what happens if I miss a dose of Mounjaro?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Olumiant drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is Tocilizumab a steroid?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Yondelis for sarcoma",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what to do if Alora patch falls off",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Dalvance mechanism of action",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can Jakafi be used for graft-versus-host disease?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how long does it take for Opzelura to work?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Opdivo for lung cancer",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "good evening",
+    "intent": "greeting"
+  },
+  {
+    "text": "how to store Humira pens",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can you write a poem?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "what should I know before starting Orencia?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is headache a side effect of Simponi Aria?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Remicade for Crohn's disease",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is Stelara's FDA approval for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen maximum daily dose",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is it going to rain today?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "long term use of Prilosec",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can Xeljanz cause blood clots?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hello",
+    "intent": "greeting"
+  },
+  {
+    "text": "Rinvoq for atopic dermatitis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Methadone and liver function",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Epclusa treatment duration",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is Herceptin chemotherapy?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Mounjaro versus Ozempic",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what does Olumiant do?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "common uses for Tocilizumab",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about Yondelis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to change Alora patch",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is Dalvance a strong antibiotic?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Jakafi for myelofibrosis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "do I need a prescription for Opzelura?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how is Opdivo administered?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Humira side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's up",
+    "intent": "greeting"
+  },
+  {
+    "text": "how do airplanes fly?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "what is Orencia for",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria vs Remicade",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the dosage for remicade?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "who should not take Stelara?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "does ibuprofen raise blood pressure?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me something interesting",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "can i take prilosec every day?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "xeljanz side effects long term",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is rinvoq a biologic drug?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how much does epclusa cost?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin mechanism of action",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro prescribing information",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is olumiant?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is a sonnet?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Yondelis infusion side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Alora dosing",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Dalvance for skin infections",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Jakafi and low platelet count",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Opzelura patient reviews",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Opdivo success rate",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hey",
+    "intent": "greeting"
+  },
+  {
+    "text": "what is the best way to learn a new language?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Does Humira cause weight gain?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to prepare for an Orencia infusion",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria common side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what tests are needed before starting Remicade?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can I get vaccinated while on Stelara?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen and alcohol",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "who is the current prime minister of India?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Prilosec vs Nexium",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the black box warning for Xeljanz?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "good morning",
+    "intent": "greeting"
+  },
+  {
+    "text": "how long can you take Rinvoq?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is Methadone addictive?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what to do if I miss a dose of Epclusa?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Herceptin and heart problems",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to use the Mounjaro pen",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can Olumiant cause shingles?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is Tocilizumab used for besides arthritis?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Yondelis administration",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "where to apply Alora patch",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is Dalvance a one-time dose?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Jakafi dose reduction",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how much does Opzelura cream cost?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Opdivo and immunotherapy side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hello there",
+    "intent": "greeting"
+  },
+  {
+    "text": "What is Humira?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's the capital of Kerala?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Tell me about Orencia",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What is Simponi Aria prescribed for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Remicade for ulcerative colitis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Stelara injection sites",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can I take ibuprofen for a headache?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "How does Prilosec reduce stomach acid?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the latest Virat Kohli score?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Xeljanz patient assistance programs",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Rinvoq and liver enzymes",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Methadone clinic information",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Epclusa and ribavirin",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how is Herceptin given?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Mounjaro savings card",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Olumiant for COVID-19",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Tocilizumab infusion reactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Yondelis contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hey bot",
+    "intent": "greeting"
+  },
+  {
+    "text": "can you translate 'hello' to French?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "What is Dalvance?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Jakafi and skin cancer risk",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Opzelura vs Eucrisa",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can Opdivo cure melanoma?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Tell me about Humira's black box warning",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "How is Orencia administered?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Is Simponi Aria a monthly infusion?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What should I report to my doctor while on Remicade?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Stelara vs Humira",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Is it safe to take ibuprofen long-term?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "When is the best time to take Prilosec?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Xeljanz and risk of infection",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can Rinvoq be taken with methotrexate?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What are the overdose symptoms of Methadone?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the formula for photosynthesis?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Epclusa drug information",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Herceptin for HER2-positive cancer",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What are the most common side effects of Mounjaro?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What blood tests are needed for Olumiant?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Tocilizumab for giant cell arteritis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Yondelis dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can I cut the Alora patch?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Dalvance infusion time",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What happens if I miss a dose of Jakafi?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Is Opzelura a steroid?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "How long is Opdivo treatment?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yo",
+    "intent": "greeting"
+  },
+  {
+    "text": "Can Humira be taken with methotrexate?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "How does Orencia work for rheumatoid arthritis?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the biggest planet in our solar system?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Simponi Aria patient information",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "What are the long-term effects of taking Remicade?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to give yourself a Stelara injection",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen for fever",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how's it going",
+    "intent": "greeting"
+  },
+  {
+    "text": "what is the plot of the movie 'Parasite'?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "can prilosec cause constipation?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is xeljanz xr?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "rinvoq dosing for psoriatic arthritis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is methadone a controlled substance?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can epclusa be crushed?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin patient reviews",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro for type 2 diabetes",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant for atopic dermatitis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab and liver enzymes",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis manufacturer",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "alora patch strength",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance vs vancomycin",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "jakafi indications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opzelura for eczema",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo with yervoy",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "good afternoon",
+    "intent": "greeting"
+  },
+  {
+    "text": "does humira need to be refrigerated?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can you tell me a story?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "orencia for juvenile idiopathic arthritis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "simponi aria cost",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "remicade and tuberculosis risk",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "stelara prescribing information",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is ibuprofen a blood thinner?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how does the internet work?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "prilosec otc vs prescription",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "xeljanz and shingles vaccine",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is rinvoq made of?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone half-life",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "epclusa and alcohol",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how long is herceptin treatment?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro nausea side effect",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant black box warning",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab for cytokine release syndrome",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis fda approval",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "where can I buy alora patches?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance common uses",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is jakafi a form of chemotherapy?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opzelura side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo for kidney cancer",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hi",
+    "intent": "greeting"
+  },
+  {
+    "text": "do you have a name?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "what happens if humira is left out of the fridge?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how much does orencia cost?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "simponi aria infusion side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is remicade safe?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can stelara cause cancer?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen dosage for adults",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the recipe for biryani?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "how long does it take for prilosec to work?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "xeljanz vs humira",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "rinvoq and weight gain",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone drug test information",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "epclusa side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin storage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro drug class",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is tocilizumab an immunosuppressant?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "alora and breast cancer risk",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "jakafi side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opzelura cost",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "good evening",
+    "intent": "greeting"
+  },
+  {
+    "text": "tell me about the history of computers",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Humira for psoriatic arthritis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Orencia subcutaneous injection instructions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how is simponi aria different from simponi?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what are infusion reactions with remicade?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "stelara for crohn's disease dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can children take ibuprofen?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the currency of Japan?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "prilosec alternatives",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can I stop taking xeljanz suddenly?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "rinvoq for ankylosing spondylitis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone vs suboxone",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the genotype for epclusa treatment?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin cost",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro and thyroid cancer warning",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is olumiant safe?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab and cholesterol",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis dosage and administration",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "alora generic name",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance for mrsa",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "jakafi prescribing information",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to get opzelura cheaper",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo infusion time",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hello",
+    "intent": "greeting"
+  },
+  {
+    "text": "can you sing a song?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "common side effects for humira",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what are the risks of orencia?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how long does a simponi aria infusion take?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "remicade patient support",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is stelara a tnf inhibitor?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen interactions with other medications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what time is it in New York?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "is prilosec safe for long term use?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "xeljanz medication guide",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what does rinvoq treat?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to taper off methadone",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "epclusa for cirrhosis patients",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "can herceptin cause hair loss?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how does mounjaro work for weight loss?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "alora patch contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "jakafi dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opzelura warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hey",
+    "intent": "greeting"
+  },
+  {
+    "text": "What is the capital of Australia?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Humira for ulcerative colitis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Can Orencia cause serious infections?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria drug class",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Remicade and pregnancy",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Stelara side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen brand names",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "recommend a good book",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Prilosec dosage for ulcers",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Xeljanz vs Rinvoq",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how is rinvoq administered?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "epclusa dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant indication",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "alora side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "jakafi warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opzelura contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "good morning",
+    "intent": "greeting"
+  },
+  {
+    "text": "what is 2+2?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "How much does Humira cost?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Orencia and live vaccines",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria for psoriatic arthritis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "how to prepare for a remicade infusion",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what happens if I miss a dose of stelara?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen for muscle pain",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Prilosec and magnesium levels",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "is xeljanz a high-risk medication?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "rinvoq manufacturer coupon",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "epclusa warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro dosage",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "alora warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "jakafi contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opzelura drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hello there",
+    "intent": "greeting"
+  },
+  {
+    "text": "how to bake a cake",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Humira injection sites",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Orencia side effects",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Remicade warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Stelara warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "who is Sachin Tendulkar?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Prilosec warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Xeljanz warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Rinvoq warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "epclusa contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tocilizumab drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yondelis drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "alora drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "dalvance drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "jakafi drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opzelura indication",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "opdivo drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "hey bot",
+    "intent": "greeting"
+  },
+  {
+    "text": "how do you make coffee?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Humira warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Orencia warnings",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Remicade contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Stelara contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about carnatic music",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Prilosec contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Xeljanz contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Rinvoq contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "methadone contraindications",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "epclusa drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "herceptin drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "mounjaro drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "olumiant drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about tocilizumab",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about yondelis",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about alora",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about dalvance",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about jakafi",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about opzelura",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "tell me about opdivo",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "yo",
+    "intent": "greeting"
+  },
+  {
+    "text": "what is your purpose?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Humira drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Orencia drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Simponi Aria drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Remicade drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Stelara drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "ibuprofen drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is the best programming language?",
+    "intent": "irrelevant"
+  },
+  {
+    "text": "Prilosec drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Xeljanz drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "Rinvoq drug interactions",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is methadone for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is epclusa for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is herceptin for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is mounjaro for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is olumiant for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is tocilizumab for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is yondelis for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is alora for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is dalvance for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is jakafi for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is opzelura for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what is opdivo for?",
+    "intent": "drug_medical"
+  },
+  {
+    "text": "what's up",
+    "intent": "greeting"
+  },
+  {
+    "text": "what is an algorithm?",
+    "intent": "irrelevant"
+  }
+]
